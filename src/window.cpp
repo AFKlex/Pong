@@ -60,5 +60,62 @@ void destroyGame(SDL_Window *&ptrWindow, SDL_Surface *&ptrSurface, SDL_Renderer 
     SDL_Quit();
 }
 
+SDL_Texture *loadTexture(const std::string &path, SDL_Renderer *&ptrRenderer){
+    SDL_Texture* newTexture = nullptr;
+
+    SDL_Surface *loadedSurface = IMG_Load(path.c_str());
+    if(loadedSurface == nullptr){
+        std::cout << "Unable to Load Image: " << IMG_GetError() << std::endl;
+    }else{
+        newTexture = SDL_CreateTextureFromSurface(ptrRenderer,loadedSurface);
+    }
+    if(newTexture == nullptr){
+        std::cout << "Unable to Load Texture: " << SDL_GetError() << std::endl;
+    }
+    SDL_FreeSurface(loadedSurface);
+
+    return  newTexture;
+
+}
+
+void setBackgroundColor(SDL_Renderer *&ptrRenderer){
+    SDL_SetRenderDrawColor(ptrRenderer, 176,179,181, 255 );
+    SDL_RenderClear(ptrRenderer);
+
+}
+
+void drawGrid(SDL_Renderer *&ptrRenderer){
+
+
+    // That big dumb i want to fill some square
+    /*for(int i=0; i<= WIDTH; i+=10){
+        SDL_RenderDrawLine( ptrRenderer, i, 0, i, HEIGHT);
+    }
+
+    for(int i=0; i<= HEIGHT; i+=10){
+        SDL_RenderDrawLine( ptrRenderer, 0, i, WIDTH, i);
+    }*/
+    int rowCounter = 0;
+    for(int i = 0; i<=WIDTH; i+=20) {
+        for (int j = 0; j <= HEIGHT; j += 20) {
+            rowCounter++;
+            SDL_Rect rect;
+            rect = {i, j, 20, 20};
+            if(rowCounter %2 != 0){
+                //fillRect.x = 0; fillRect.y = 0;
+                SDL_SetRenderDrawColor(ptrRenderer,184,185, 186, 255);
+                SDL_RenderFillRect(ptrRenderer,&rect);
+
+            }
+            //SDL_SetRenderDrawColor(ptrRenderer, 0, 0, 0, 0xFF );
+            //SDL_RenderDrawRect(ptrRenderer, &rect);
+        }
+    }
+}
+
+void drawTexture(){
+
+}
+
 
 
