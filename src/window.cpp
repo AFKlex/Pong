@@ -19,7 +19,17 @@ bool initWindow(SDL_Window *&ptrWindow){
     return success;
 }
 
-bool initGame(SDL_Window *&ptrWindow){
+bool initRenderer(SDL_Renderer *&ptrRenderer, SDL_Window *&ptrWindow){
+    bool success = true;
+    ptrRenderer = SDL_CreateRenderer(ptrWindow, -1, SDL_RENDERER_ACCELERATED);
+    if (ptrRenderer == nullptr) {
+        std::cout << "Renderer could not be created! SDL Error: " << SDL_GetError() << std::endl;
+        success = false;
+    }
+    return  success;
+}
+
+bool initGame(SDL_Window *&ptrWindow, SDL_Surface *&ptrSurface, SDL_Renderer *&ptrRenderer){
     bool  success = true;
 
     if(SDL_Init(SDL_INIT_VIDEO) <0){
@@ -28,8 +38,27 @@ bool initGame(SDL_Window *&ptrWindow){
     }else{
         success = initWindow(ptrWindow);
     }
+    if(success){
+        ptrSurface  = SDL_GetWindowSurface(ptrWindow);
+    }else{
+        std::cout << "Failed to Load ptrSurface because Window was not good! SDL Error: " << SDL_GetError() << std::endl;
+    }
+
+    if(!initRenderer(ptrRenderer,ptrWindow)){
+        std::cout << "Failed to load ptrRenderer! SDL Error: " << SDL_GetError() << std::endl;
+    }
 
     return success;
 }
+
+void destroyGame(SDL_Window *&ptrWindow, SDL_Surface *&ptrSurface, SDL_Renderer *&ptrRenderer){
+    SDL_DestroyWindow(ptrWindow);
+    SDL_DestroyRenderer(ptrRenderer);
+    ptrWindow = nullptr;
+    ptrRenderer = nullptr;
+    ptrSurface = nullptr;
+    SDL_Quit();
+}
+
 
 

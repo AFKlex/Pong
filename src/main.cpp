@@ -4,10 +4,17 @@
 #include<iostream>
 #include"header/window.h"
 int main(){
-    std::cout << "Hello World" << std::endl;
-
+    // The Game window
     SDL_Window *window = nullptr;
-    if(!initGame(window)){
+
+    // Surface where Stuff happens
+    SDL_Surface *mainSurface = nullptr;
+
+    // Renderer for Drawing
+    SDL_Renderer *renderer = nullptr;
+
+
+    if(!initGame(window, mainSurface, renderer)){
         std::cout << "Failed to Init Game!" << std::endl;
     }
 
@@ -23,6 +30,7 @@ int main(){
         SDL_Delay(10);
     }
 
-
+    // Free all things from the endless suffering that is my game.
+    destroyGame(window,mainSurface,renderer);
     return 0;
 }
