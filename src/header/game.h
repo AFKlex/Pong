@@ -8,19 +8,40 @@ class Ball{
 public:
     SDL_Texture *ballImage = nullptr;
     SDL_Rect ball_rect{};
-    int x;
-    int y;
     int velocity;
+    int score_left;
+    int score_right;
+    Uint32 collisionDelayEndTime;
 
     Ball(int x,int y);
-    void setImage(SDL_Renderer *&ptrRenderer, SDL_Texture *&ptrTexture);
+    void setImage(SDL_Texture *&ptrTexture);
     SDL_Rect* getRect();
     void moveBall();
+    void playerCollision(SDL_Rect player);
 private:
     void borderCollision();
     int directionX;
     int directionY;
-
+    void resetBall();
 
 };
-#endif //PONG_GAME_H
+
+class Player{
+public:
+
+    int velocity;
+    int direction;
+    bool isMoving;
+    SDL_Rect playerRect{};
+
+    Player(int x, int y);
+    SDL_Rect* getRect();
+    SDL_Rect getRectData();
+    void changeMoving(bool changeTo);
+    void changeUP();
+    void changeDown();
+    void movePlayer();
+};
+
+
+#endif //PONG_GAME_// H

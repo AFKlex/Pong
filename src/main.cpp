@@ -23,9 +23,13 @@ int main(){
 
 
     SDL_Texture* ballImage = loadTexture("../assets/ball.png", renderer);
-    Ball ball= Ball(100,100);
+    Ball ball= Ball(288,208);
 
-    ball.setImage(renderer,ballImage);
+    ball.setImage(ballImage);
+
+    SDL_Texture* playerImage = loadTexture("../assets/player.png", renderer);
+    Player player1 = Player(20, 200);
+    Player player2 = Player(600, 200);
 
     bool quit = false;
     SDL_Event e;
@@ -34,14 +38,54 @@ int main(){
         while (SDL_PollEvent(&e) != 0){
             if(e.type == SDL_QUIT){
                 quit = true;
+            }else if (e.type == SDL_KEYDOWN) {
+                //Select surfaces based on key press
+                switch (e.key.keysym.sym) {
+
+                    case SDLK_w:
+                        player1.changeUP();
+                        player1.changeMoving(true);
+                        break;
+                    case SDLK_s:
+                        player1.changeDown();
+                        player1.changeMoving(true);
+                        break;
+                    case SDLK_DOWN:
+                        player2.changeDown();
+                        player2.changeMoving(true);
+                        break;
+                    case SDLK_UP:
+                        player2.changeUP();
+                        player2.changeMoving(true);
+                        break;
+
+
+                }
+            }else if(e.type == SDL_KEYUP){
+                switch(e.key.keysym.sym){
+                    case SDLK_w:
+                    case SDLK_s:
+                        player1.changeMoving(false);
+                        break;
+                    case SDLK_DOWN:
+                    case SDLK_UP:
+                        player2.changeMoving(false);
+                        break;
+                }
+
             }
         }
-
+        player1.movePlayer();
+        player2.movePlayer();
         setBackgroundColor(renderer);
         drawGrid(renderer);
         ball.moveBall();
+        ball.playerCollision(player1.getRectData());
+        ball.playerCollision(player2.getRectData());
 
         SDL_RenderCopy(renderer,ballImage, nullptr, ball.getRect() );
+        SDL_RenderCopy(renderer,playerImage, nullptr, player1.getRect() );
+        SDL_RenderCopy(renderer,playerImage, nullptr, player2.getRect() );
 
         SDL_RenderPresent(renderer);
         SDL_Delay(1000/60);

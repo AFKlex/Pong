@@ -10,17 +10,16 @@ const int WIDTH = 640;
 const int HEIGHT = 480;
 
 Ball::Ball(int x ,int y){
-    this->x = x;
-    this->y = y;
-    this->velocity=10;
-    this->ball_rect = SDL_Rect {this->x,this->y, 32, 32 };
 
-    this->directionX = 1;
+    this->velocity=1;
+    this->ball_rect = SDL_Rect {x,y, 32, 32 };
+    collisionDelayEndTime= 0;
+    this->directionX = -1;
     this->directionY = 1;
 
 }
 
-void Ball::setImage(SDL_Renderer *&ptrRenderer, SDL_Texture *&ptrTexture) {
+void Ball::setImage(SDL_Texture *&ptrTexture) {
     this->ballImage = ptrTexture;
 }
 
@@ -30,24 +29,112 @@ SDL_Rect* Ball::getRect() {
 
 void Ball::moveBall(){
     //std::cout << "X: " << x << "Y: " << this->y << std::endl;
-    this->x += this->directionX * this->velocity;
-    this->y += this->directionY * this->velocity;
-    ball_rect.x = this->x;
-    ball_rect.y = this->y;
+    ball_rect.x += this->directionX * this->velocity;
+    ball_rect.y += this->directionY * this->velocity;
+
     borderCollision();
+}
+
+void Ball::resetBall() {
+    ball_rect.x = WIDTH/2-ball_rect.w;
+    ball_rect.y = HEIGHT/2-ball_rect.h;
+    std::cout << " x: " <<  WIDTH/2-ball_rect.w << " y: " << HEIGHT/2-ball_rect.h << std::endl;
 }
 
 void Ball::borderCollision(){
     // Reflect the ball at x collision
-    if(x+ball_rect.w >= WIDTH || x <=0){
+    if(ball_rect.x +ball_rect.w >= WIDTH){
         directionX *=-1;
+        score_left++;
+        resetBall();
+        velocity= 2;
+
+        std::cout << "Score Left: " << score_left << " Score Right: " << score_right << std::endl;
+    }else if(ball_rect.x <=0){
+        directionX *=-1;
+        score_right++;
+        resetBall();
+        velocity = 2;
+
+        std::cout << "Score Left: " << score_left << " Score Right: " << score_right << std::endl;
     }
-    // reflect the ball at y collision
-    if(y+ball_rect.h >= HEIGHT || y<= 0){
+
+    if(ball_rect.y +ball_rect.h >= HEIGHT || ball_rect.y<= 0){
         directionY *=-1;
     }
 
 }
 
 
+void Ball::playerCollision(SDL_Rect player) {
+    static bool collisionDelay = false;  // Static variable to track the collision delay
+    Uint32 currentTime = SDL_GetTicks();  // Current time
+
+    // Check if the collision delay has elapsed
+    if (collisionDelay && currentTime >= collisionDelayEndTime) {
+        collisionDelay = false;  // Reset the collision delay flag
+    }
+
+    if(!collisionDelay) {
+        if ((ball_rect.x <= player.x + player.w && player.x < WIDTH / 2) ||
+            (ball_rect.x + ball_rect.w >= player.x && player.x > WIDTH / 2)) {
+
+            if (!(ball_rect.y + ball_rect.h <= player.y || ball_rect.y >= player.y + player.h)) {
+
+
+
+                directionX *= -1;
+                directionY *= -1;
+
+                collisionDelay = true;  // Set the collision delay flag
+                collisionDelayEndTime = currentTime + 500;
+                if(velocity <=6){
+                    velocity++;
+                }
+            }
+
+        }
+    }
+}
+
+Player::Player(int x, int y) {
+    velocity = 5;
+    direction= 1;
+    isMoving = false;
+    playerRect = SDL_Rect {x,y, 10*2, 32*3 };
+    std::cout << playerRect.x << std::endl;
+
+}
+
+SDL_Rect* Player::getRect() {
+    return &playerRect;
+}
+
+SDL_Rect Player::getRectData() {
+    return playerRect;
+}
+
+void Player::movePlayer() {
+    if(isMoving){
+        if(playerRect.y < 0) { // Stop at Top
+            playerRect.y +=1;
+        }else if(playerRect.y + playerRect.h > HEIGHT){ // Stop at bottom
+            playerRect.y -=1;
+        }else{
+            playerRect.y += direction*velocity; // Move player
+        }
+
+    }
+}
+
+void Player::changeUP() {
+    direction  = -1;
+}
+void Player::changeDown() {
+    direction = 1;
+}
+
+void Player::changeMoving(bool changeTo){
+    isMoving = changeTo;
+}
 
