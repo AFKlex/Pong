@@ -6,15 +6,25 @@
 #include "SDL2/SDL.h"
 #include "header/game.h"
 #include<iostream>
+#include<cstdlib>
+#include<ctime>
+
 const int WIDTH = 640;
 const int HEIGHT = 480;
+
+int generate_random_number(int min, int max){
+    std::srand(std::time(nullptr)); // use current time as seed for random generator
+
+    int random_variable = std::rand() % (max-min) + min;//Max is not included in the range while min is.
+    return random_variable;
+}
 
 Ball::Ball(int x ,int y){
 
     this->velocity=1;
     this->ball_rect = SDL_Rect {x,y, 32, 32 };
     collisionDelayEndTime= 0;
-    this->directionX = -1;
+    this->directionX = 1;
     this->directionY = 1;
 
 }
@@ -69,6 +79,7 @@ void Ball::borderCollision(){
 void Ball::playerCollision(SDL_Rect player) {
     static bool collisionDelay = false;  // Static variable to track the collision delay
     Uint32 currentTime = SDL_GetTicks();  // Current time
+    int randomInt = 0;
 
     // Check if the collision delay has elapsed
     if (collisionDelay && currentTime >= collisionDelayEndTime) {
@@ -81,10 +92,40 @@ void Ball::playerCollision(SDL_Rect player) {
 
             if (!(ball_rect.y + ball_rect.h <= player.y || ball_rect.y >= player.y + player.h)) {
 
+                randomInt = generate_random_number(0,4);
+                std::cout<< randomInt <<std::endl;
 
-
+                switch (randomInt) {
+                    case 0:
+                        if(directionY >0){
+                            directionY = 2;
+                        } else{
+                            directionY = -2;
+                        }
+                        break;
+                    case 1:
+                        if(directionX > 0){
+                            directionX = 2;
+                        }else{
+                            directionX = -2;
+                        }
+                        break;
+                    case 2:
+                        if(directionX > 0){
+                            directionX =1;
+                        }else{
+                            directionX = -1;
+                        }
+                        break;
+                    case 3:
+                        if(directionY >0){
+                            directionY = 1;
+                        } else{
+                            directionY = -1;
+                        }
+                }
                 directionX *= -1;
-                directionY *= -1;
+                std::cout << "Current direction: " << directionX << ", " << directionY << std::endl;
 
                 collisionDelay = true;  // Set the collision delay flag
                 collisionDelayEndTime = currentTime + 500;
@@ -98,7 +139,7 @@ void Ball::playerCollision(SDL_Rect player) {
 }
 
 Player::Player(int x, int y) {
-    velocity = 5;
+    velocity = 10;
     direction= 1;
     isMoving = false;
     playerRect = SDL_Rect {x,y, 10*2, 32*3 };
