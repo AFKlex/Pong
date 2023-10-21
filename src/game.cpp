@@ -74,7 +74,7 @@ void Ball::borderCollision(){
         velocity = 2;
 
     }
-    std::cout << "Score Left: " << score_left << " Score Right: " << score_right << std::endl;
+    //std::cout << "Score Left: " << score_left << " Score Right: " << score_right << std::endl;
 
     if(ball_rect.y +ball_rect.h >= HEIGHT || ball_rect.y<= 0){
         directionY *=-1;

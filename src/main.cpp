@@ -19,6 +19,7 @@ int main(){
     SDL_Surface* message = nullptr;
     SDL_Texture* messageTexture = nullptr;
     TTF_Font *font = nullptr;
+    std::string messageText;
     int scoreLeft = 0;
     int scoreRight = 0;
 
@@ -110,8 +111,27 @@ int main(){
             //std::cout<< "render new text" << std::endl;
             scoreLeft = ball.score_left;
             scoreRight = ball.score_right;
-            std::string messageText = std::to_string(ball.score_left) + ":" + std::to_string(ball.score_right);
+
+            if(scoreLeft == 5){
+                messageText = "Player 1 hat gewonnen!";
+                Message_rect.w = 400;
+                Message_rect.x = 640/2 -200;
+                Message_rect.y = 480/2;
+                quit = true;
+
+            }else if(scoreRight == 5){
+                messageText= "Player 2 hat gewonnen!";
+                Message_rect.w = 400;
+                Message_rect.x = 640/2 -200;
+                Message_rect.y = 480/2;
+                quit = true;
+            }else{
+                messageText = std::to_string(ball.score_left) + ":" + std::to_string(ball.score_right);
+            }
+
+
             loadTextTexture(renderer, messageTexture, font, messageText, textColor);
+
         }
         SDL_RenderCopy(renderer,ballImage, nullptr, ball.getRect() );
         SDL_RenderCopy(renderer,playerImage, nullptr, player1.getRect() );
@@ -121,6 +141,9 @@ int main(){
 
 
         SDL_RenderPresent(renderer);
+        if(quit){
+            SDL_Delay(1000);
+        }
         SDL_Delay(1000/60);
     }
 
