@@ -4,6 +4,7 @@
 #include<SDL2/SDL.h>
 #include<SDL2/SDL_image.h>
 #include<iostream>
+#include<SDL2/SDL_ttf.h>
 const int WIDTH = 640;
 const int HEIGHT = 480;
 
@@ -29,7 +30,22 @@ bool initRenderer(SDL_Renderer *&ptrRenderer, SDL_Window *&ptrWindow){
     return  success;
 }
 
-bool initGame(SDL_Window *&ptrWindow, SDL_Surface *&ptrSurface, SDL_Renderer *&ptrRenderer){
+bool initFont(SDL_Surface *&ptrMessage, TTF_Font *&ptrFont){
+    bool  success = true;
+    if( TTF_Init() == -1 ){ //Initialize SDL_ttf
+        std::cout << "Failed to load Font" << std::endl;
+        success = false;
+    }
+    ptrFont = TTF_OpenFont("../assets/Gothic.ttf", 100);
+    if(ptrFont == nullptr){
+        std::cout << "Failed to load Font! TTF_Error: " << TTF_GetError() << std::endl;
+        success = false;
+    }
+
+    return success;
+}
+
+bool initGame(SDL_Window *&ptrWindow, SDL_Surface *&ptrSurface, SDL_Renderer *&ptrRenderer, SDL_Surface*& ptrMessage, TTF_Font *& ptrFont){
     bool  success = true;
 
     if(SDL_Init(SDL_INIT_VIDEO) <0){
@@ -42,6 +58,10 @@ bool initGame(SDL_Window *&ptrWindow, SDL_Surface *&ptrSurface, SDL_Renderer *&p
         ptrSurface  = SDL_GetWindowSurface(ptrWindow);
     }else{
         std::cout << "Failed to Load ptrSurface because Window was not good! SDL Error: " << SDL_GetError() << std::endl;
+    }
+
+    if(!initFont(ptrMessage,ptrFont)){
+        std::cout << "Failed to load Font! SDL Error: " << SDL_GetError() << TTF_GetError() << std::endl;
     }
 
     if(!initRenderer(ptrRenderer,ptrWindow)){
@@ -113,7 +133,24 @@ void drawGrid(SDL_Renderer *&ptrRenderer){
     }
 }
 
-void drawTexture(){
+SDL_Texture* loadTextTexture(SDL_Renderer *& ptrRenderer, SDL_Texture *&ptrTexture, TTF_Font *& ptrFont, const std::string& stringToDraw, SDL_Color colorOfString ){
+    SDL_Surface* surfaceMessage = TTF_RenderText_Solid(ptrFont, stringToDraw.c_str(), colorOfString);
+    if(surfaceMessage == nullptr){
+        std::cout << "Failed to load SurfaceMessage! SDL_Error: " << SDL_GetError() << std::endl;
+        return nullptr;
+    }
+    if(ptrTexture != nullptr){
+        SDL_DestroyTexture(ptrTexture);
+    }
+    ptrTexture = SDL_CreateTextureFromSurface(ptrRenderer, surfaceMessage);
+
+    if(ptrTexture == nullptr){
+        std::cout << "Failed to load Message! SDL_Error: " << SDL_GetError() << std::endl;
+    }else{
+        free(surfaceMessage);
+    }
+
+    return  ptrTexture;
 
 }
 

@@ -4,6 +4,7 @@
 #include<iostream>
 #include"header/window.h"
 #include"header/game.h"
+#include<SDL2/SDL_ttf.h>
 
 int main(){
     // The Game window
@@ -15,9 +16,15 @@ int main(){
     // Renderer for Drawing
     SDL_Renderer *renderer = nullptr;
 
+    SDL_Surface* message = nullptr;
+    SDL_Texture* messageTexture = nullptr;
+    TTF_Font *font = nullptr;
+    int scoreLeft = 0;
+    int scoreRight = 0;
 
 
-    if(!initGame(window, mainSurface, renderer)){
+
+    if(!initGame(window, mainSurface, renderer, message, font)){
         std::cout << "Failed to Init Game!" << std::endl;
     }
 
@@ -34,6 +41,21 @@ int main(){
     bool quit = false;
     SDL_Event e;
 
+
+    SDL_Color textColor ={255,255,255};
+
+
+
+
+
+
+    SDL_Rect Message_rect; //create a rect
+    Message_rect.x = 640/2-50;  //controls the rect's x coordinate
+    Message_rect.y = 10; // controls the rect's y coordinte
+    Message_rect.w = 100; // controls the width of the rect
+    Message_rect.h = 100;
+
+    TTF_SetFontHinting(font, TTF_HINTING_NORMAL);
     while (!quit){
         while (SDL_PollEvent(&e) != 0){
             if(e.type == SDL_QUIT){
@@ -58,7 +80,8 @@ int main(){
                         player2.changeUP();
                         player2.changeMoving(true);
                         break;
-
+                    case SDLK_SPACE:
+                        ball.changeActivity(true);
 
                 }
             }else if(e.type == SDL_KEYUP){
@@ -83,9 +106,19 @@ int main(){
         ball.playerCollision(player1.getRectData());
         ball.playerCollision(player2.getRectData());
 
+        if(scoreLeft < ball.score_left || scoreRight < ball.score_right) {
+            //std::cout<< "render new text" << std::endl;
+            scoreLeft = ball.score_left;
+            scoreRight = ball.score_right;
+            std::string messageText = std::to_string(ball.score_left) + ":" + std::to_string(ball.score_right);
+            loadTextTexture(renderer, messageTexture, font, messageText, textColor);
+        }
         SDL_RenderCopy(renderer,ballImage, nullptr, ball.getRect() );
         SDL_RenderCopy(renderer,playerImage, nullptr, player1.getRect() );
         SDL_RenderCopy(renderer,playerImage, nullptr, player2.getRect() );
+        SDL_RenderCopy(renderer, messageTexture, nullptr, &Message_rect);
+
+
 
         SDL_RenderPresent(renderer);
         SDL_Delay(1000/60);
@@ -93,5 +126,10 @@ int main(){
 
     // Free all things from the endless suffering that is my game.
     destroyGame(window,mainSurface,renderer);
+    free(message);
+    SDL_DestroyTexture(messageTexture);
+    SDL_DestroyTexture(ballImage);
+    SDL_DestroyTexture(playerImage);
+
     return 0;
 }

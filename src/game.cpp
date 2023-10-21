@@ -26,6 +26,7 @@ Ball::Ball(int x ,int y){
     collisionDelayEndTime= 0;
     this->directionX = 1;
     this->directionY = 1;
+    isActive = false;
 
 }
 
@@ -37,18 +38,25 @@ SDL_Rect* Ball::getRect() {
     return &ball_rect;
 }
 
+void Ball::changeActivity(bool changeTo){
+    isActive = changeTo;
+}
+
 void Ball::moveBall(){
     //std::cout << "X: " << x << "Y: " << this->y << std::endl;
-    ball_rect.x += this->directionX * this->velocity;
-    ball_rect.y += this->directionY * this->velocity;
+    if(isActive){
+        ball_rect.x += this->directionX * this->velocity;
+        ball_rect.y += this->directionY * this->velocity;
+        borderCollision();
+    }
 
-    borderCollision();
 }
 
 void Ball::resetBall() {
     ball_rect.x = WIDTH/2-ball_rect.w;
     ball_rect.y = HEIGHT/2-ball_rect.h;
     std::cout << " x: " <<  WIDTH/2-ball_rect.w << " y: " << HEIGHT/2-ball_rect.h << std::endl;
+    isActive = false;
 }
 
 void Ball::borderCollision(){
@@ -58,16 +66,15 @@ void Ball::borderCollision(){
         score_left++;
         resetBall();
         velocity= 2;
-
-        std::cout << "Score Left: " << score_left << " Score Right: " << score_right << std::endl;
+        
     }else if(ball_rect.x <=0){
         directionX *=-1;
         score_right++;
         resetBall();
         velocity = 2;
 
-        std::cout << "Score Left: " << score_left << " Score Right: " << score_right << std::endl;
     }
+    std::cout << "Score Left: " << score_left << " Score Right: " << score_right << std::endl;
 
     if(ball_rect.y +ball_rect.h >= HEIGHT || ball_rect.y<= 0){
         directionY *=-1;

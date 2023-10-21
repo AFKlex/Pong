@@ -11,10 +11,12 @@ public:
     int velocity;
     int score_left;
     int score_right;
+    bool isActive;
     Uint32 collisionDelayEndTime;
 
     Ball(int x,int y);
     void setImage(SDL_Texture *&ptrTexture);
+    void changeActivity(bool changeTo);
     SDL_Rect* getRect();
     void moveBall();
     void playerCollision(SDL_Rect player);
